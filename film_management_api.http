@@ -4,3 +4,18 @@ GET {{film_management_api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+POST {{film_management_api_HostAddress}}/api/films
+Content-Type: application/json
+
+{
+  "tenPhim": "Dune: Part Two",
+  "moTa": "Paul Atreides tiếp tục hành trình của mình.",
+  "thoiLuong": 166,
+  "namPhatHanh": 2024,
+  "ngayKhoiChieu": "2024-03-01T00:00:00",
+  "ngonNgu": "English",
+  "quocGia": "USA",
+  "maTheLoai": 2,
+  "maDaoDien": 3
+}

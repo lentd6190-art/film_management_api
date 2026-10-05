@@ -1,3 +1,4 @@
+using film_management_api.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -13,6 +14,36 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+var films = new List<Film>
+{
+    new Film
+    {
+        MaPhim = 1,
+        TenPhim = "Avengers: Endgame",
+        MoTa = "Biệt đội Avengers đối đầu với Thanos.",
+        ThoiLuong = 181,
+        NamPhatHanh = 2019,
+        NgayKhoiChieu = new DateTime(2019, 04, 26),
+        NgonNgu = "English",
+        QuocGia = "USA",
+        MaTheLoai = 1,
+        MaDaoDien = 1
+    },
+    new Film
+    {
+        MaPhim = 2,
+        TenPhim = "Interstellar",
+        MoTa = "Một nhóm phi hành gia khám phá không gian.",
+        ThoiLuong = 169,
+        NamPhatHanh = 2014,
+        NgayKhoiChieu = new DateTime(2014, 11, 07),
+        NgonNgu = "English",
+        QuocGia = "USA",
+        MaTheLoai = 2,
+        MaDaoDien = 2
+    }
+};
 
 var summaries = new[]
 {
@@ -32,6 +63,23 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+app.MapPost("/api/films", (Film film) =>
+{
+    if (film == null)
+    {
+        return Results.BadRequest("Film data is required.");
+    }
+
+    film.MaPhim = films.Count > 0
+        ? films.Max(f => f.MaPhim) + 1
+        : 1;
+
+    films.Add(film);
+
+    return Results.Created($"/api/films/{film.MaPhim}", film);
+})
+.WithName("CreateFilm");
 
 app.Run();
 
