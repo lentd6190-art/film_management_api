@@ -62,11 +62,27 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
 app.MapGet("/api/films", () =>
 {
     return Results.Ok(films);
 })
 .WithName("GetAllFilms");
+
+app.MapGet("/api/films/{id}", (int id) =>
+{
+    var film = films.FirstOrDefault(f => f.MaPhim == id);
+
+    if (film == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(film);
+})
+.WithName("GetFilmById");
+
+
 app.Run();
 
 
