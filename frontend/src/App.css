@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Yellowtail&display=swap');
 /* =========================================================
    GLOBAL
 ========================================================= */
@@ -13,6 +16,14 @@ body,
   min-width: 320px;
   min-height: 100%;
   margin: 0;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
 }
 
 body {
@@ -45,6 +56,7 @@ input {
 
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
 
   display: grid;
 
@@ -61,6 +73,7 @@ input {
     clamp(60px, 9vw, 150px);
 
   overflow: hidden;
+  isolation: isolate;
 
   background:
     radial-gradient(
@@ -212,45 +225,47 @@ input {
   align-items: center;
   justify-content: center;
 
-  gap: 12px;
+  gap: 2px;
 
-  line-height: 0.9;
+  line-height: 0.85;
 
   margin-bottom: 25px;
 }
 
-
 .brand-film {
   color: #ffffff;
 
-  font-family:
-    "Brush Script MT",
-    "Segoe Script",
-    cursive;
+  font-family: "Yellowtail", cursive;
 
-  font-size: clamp(72px, 7vw, 105px);
+  font-size: clamp(82px, 7.5vw, 112px);
 
-  font-weight: 700;
+  font-weight: 400;
 
-  font-style: italic;
+  font-style: normal;
 
-  letter-spacing: -5px;
+  letter-spacing: -2px;
 
   transform: rotate(-4deg);
 
   text-shadow:
     0 0 15px rgba(255, 255, 255, 0.08);
+
+  -webkit-font-smoothing: antialiased;
 }
 
 
 .brand-m {
-  font-size: clamp(90px, 8vw, 125px);
+  font-family: "Lilita One", sans-serif;
 
-  font-weight: 900;
+  font-size: clamp(88px, 8vw, 122px);
 
-  font-style: italic;
+  font-weight: 400;
 
-  letter-spacing: -8px;
+  font-style: normal;
+
+  line-height: 0.8;
+
+  letter-spacing: -5px;
 
   background:
     linear-gradient(
@@ -267,6 +282,8 @@ input {
 
   text-shadow:
     0 0 25px rgba(225, 45, 120, 0.18);
+
+  -webkit-font-smoothing: antialiased;
 }
 
 
@@ -359,9 +376,7 @@ input {
 .login-card {
   width: 100%;
 
-  padding: 48px 48px 30px;
-
-  border-radius: 20px;
+  padding: 34px 42px 22px;
 
   background:
     linear-gradient(
@@ -402,7 +417,7 @@ input {
 .login-header {
   text-align: center;
 
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 
@@ -786,6 +801,26 @@ input {
   font-size: 10px;
 }
 
+/* =========================================================
+   VIEWPORT CONTROL
+========================================================= */
+
+@media (min-width: 801px) {
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .login-page {
+    height: 100dvh;
+    min-height: 100dvh;
+
+    padding-top: 30px;
+    padding-bottom: 30px;
+  }
+}
 
 /* =========================================================
    TABLET
@@ -819,6 +854,19 @@ input {
 ========================================================= */
 
 @media (max-width: 800px) {
+    html,
+  body,
+  #root {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .login-page {
+    height: auto;
+    min-height: 100dvh;
+  }
   .login-page {
     grid-template-columns: 1fr;
 
