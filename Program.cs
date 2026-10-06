@@ -1,3 +1,4 @@
+using film_management_api.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,6 +15,36 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+var films = new List<Film>
+{
+    new Film
+    {
+        MaPhim = 1,
+        TenPhim = "Avengers: Endgame",
+        MoTa = "Biệt đội Avengers đối đầu với Thanos.",
+        ThoiLuong = 181,
+        NamPhatHanh = 2019,
+        NgayKhoiChieu = new DateTime(2019, 04, 26),
+        NgonNgu = "English",
+        QuocGia = "USA",
+        MaTheLoai = 1,
+        MaDaoDien = 1
+    },
+    new Film
+    {
+        MaPhim = 2,
+        TenPhim = "Interstellar",
+        MoTa = "Một nhóm phi hành gia khám phá không gian.",
+        ThoiLuong = 169,
+        NamPhatHanh = 2014,
+        NgayKhoiChieu = new DateTime(2014, 11, 07),
+        NgonNgu = "English",
+        QuocGia = "USA",
+        MaTheLoai = 2,
+        MaDaoDien = 2
+    }
+};
+
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -21,7 +52,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
@@ -32,6 +63,29 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+app.MapPut("/api/films/{id}", (int id, Film updatedFilm) =>
+{
+    var film = films.FirstOrDefault(f => f.MaPhim == id);
+
+    if (film == null)
+    {
+        return Results.NotFound();
+    }
+
+    film.TenPhim = updatedFilm.TenPhim;
+    film.MoTa = updatedFilm.MoTa;
+    film.ThoiLuong = updatedFilm.ThoiLuong;
+    film.NamPhatHanh = updatedFilm.NamPhatHanh;
+    film.NgayKhoiChieu = updatedFilm.NgayKhoiChieu;
+    film.NgonNgu = updatedFilm.NgonNgu;
+    film.QuocGia = updatedFilm.QuocGia;
+    film.MaTheLoai = updatedFilm.MaTheLoai;
+    film.MaDaoDien = updatedFilm.MaDaoDien;
+
+    return Results.Ok(film);
+})
+.WithName("UpdateFilm");
 
 app.Run();
 
