@@ -1,121 +1,220 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleLogin = (e) => {
+    e.preventDefault()
+
+    if (username === 'admin' && password === 'admin123') {
+      setError('')
+      alert('Login successful!')
+    } else {
+      setError('Invalid username or password')
+    }
+  }
+
+  const handleForgotPassword = (e) => {
+    e.preventDefault()
+    alert('Password recovery is not available in the demo version.')
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+    <div className="login-page">
+      <div className="login-overlay"></div>
+
+      {/* =====================================================
+          LEFT - BRANDING
+      ===================================================== */}
+
+      <section className="login-brand">
+        <div className="brand-content">
+          <div className="brand-logo">
+            <span className="brand-film">Film</span>
+            <span className="brand-m">M</span>
+          </div>
+
+          <p className="brand-title">
+            FILM MANAGEMENT SYSTEM
+          </p>
+
+          <div className="brand-line"></div>
+
+          <p className="brand-tagline">
+            Organize
+            <span>•</span>
+            Manage
+            <span>•</span>
+            Create
           </p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
       </section>
 
-      <div className="ticks"></div>
+      {/* =====================================================
+          RIGHT - LOGIN
+      ===================================================== */}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
+      <section className="login-section">
+        <div className="login-card">
+
+          {/* Header */}
+
+          <div className="login-header">
+            <div className="login-icon">
+              🎬
+            </div>
+
+            <h1>Welcome back</h1>
+
+            <p>
+              Sign in to manage your film collection
+            </p>
+          </div>
+
+          {/* Form */}
+
+          <form onSubmit={handleLogin}>
+
+            {/* Username */}
+
+            <div className="form-group">
+              <label htmlFor="username">
+                Username
+              </label>
+
+              <input
+                id="username"
+                type="text"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value)
+                  setError('')
+                }}
+                autoComplete="username"
+              />
+            </div>
+
+            {/* Password */}
+
+            <div className="form-group">
+              <label htmlFor="password">
+                Password
+              </label>
+
+              <div className="password-wrapper">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    setError('')
+                  }}
+                  autoComplete="current-password"
+                />
+
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() =>
+                    setShowPassword(!showPassword)
+                  }
+                  aria-label={
+                    showPassword
+                      ? 'Hide password'
+                      : 'Show password'
+                  }
                 >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+                  {showPassword ? '🙈' : '👁'}
+                </button>
+              </div>
+            </div>
+
+            {/* Options */}
+
+            <div className="login-options">
+
+              <label className="remember-me">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) =>
+                    setRememberMe(e.target.checked)
+                  }
+                />
+
+                <span>
+                  Remember me
+                </span>
+              </label>
+
+              <button
+                type="button"
+                className="forgot-password"
+                onClick={handleForgotPassword}
+              >
+                Forgot password?
+              </button>
+
+            </div>
+
+            {/* Error */}
+
+            {error && (
+              <div className="login-error">
+                {error}
+              </div>
+            )}
+
+            {/* Submit */}
+
+            <button
+              type="submit"
+              className="login-button"
+            >
+              SIGN IN
+            </button>
+
+          </form>
+
+          {/* Demo account */}
+
+          <div className="demo-account">
+
+            <div className="demo-divider">
+              <span></span>
+              <p>Demo account</p>
+              <span></span>
+            </div>
+
+            <strong>
+              admin / admin123
+            </strong>
+
+          </div>
+
+          {/* Footer */}
+
+          <div className="login-footer">
+            <span>
+              Film Management System
+            </span>
+
+            <span>
+              © 2026
+            </span>
+          </div>
+
         </div>
       </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    </div>
   )
 }
 
