@@ -129,6 +129,22 @@ app.MapPut("/api/films/{id}", (int id, Film updatedFilm) =>
 })
 .WithName("UpdateFilm");
 
+// FM-9: Delete film
+app.MapDelete("/api/films/{id}", (int id) =>
+{
+    var film = films.FirstOrDefault(f => f.MaPhim == id);
+
+    if (film == null)
+    {
+        return Results.NotFound();
+    }
+
+    films.Remove(film);
+
+    return Results.NoContent();
+})
+.WithName("DeleteFilm");
+
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
