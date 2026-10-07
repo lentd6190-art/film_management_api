@@ -1,8 +1,8 @@
 using film_management_api.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -47,7 +47,8 @@ var films = new List<Film>
 
 var summaries = new[]
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+    "Freezing", "Bracing", "Chilly", "Cool", "Mild",
+    "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
 app.MapGet("/weatherforecast", () =>
@@ -60,10 +61,51 @@ app.MapGet("/weatherforecast", () =>
             summaries[Random.Shared.Next(summaries.Length)]
         ))
         .ToArray();
+
     return forecast;
 })
 .WithName("GetWeatherForecast");
 
+// FM-5: Get all films
+app.MapGet("/api/films", () =>
+{
+    return Results.Ok(films);
+})
+.WithName("GetAllFilms");
+
+// FM-6: Get film by ID
+app.MapGet("/api/films/{id}", (int id) =>
+{
+    var film = films.FirstOrDefault(f => f.MaPhim == id);
+
+    if (film == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(film);
+})
+.WithName("GetFilmById");
+
+// FM-7: Create film
+app.MapPost("/api/films", (Film film) =>
+{
+    if (film == null)
+    {
+        return Results.BadRequest("Film data is required.");
+    }
+
+    film.MaPhim = films.Count > 0
+        ? films.Max(f => f.MaPhim) + 1
+        : 1;
+
+    films.Add(film);
+
+    return Results.Created($"/api/films/{film.MaPhim}", film);
+})
+.WithName("CreateFilm");
+
+// FM-8: Update film
 app.MapPut("/api/films/{id}", (int id, Film updatedFilm) =>
 {
     var film = films.FirstOrDefault(f => f.MaPhim == id);
