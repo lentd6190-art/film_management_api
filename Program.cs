@@ -105,6 +105,30 @@ app.MapPost("/api/films", (Film film) =>
 })
 .WithName("CreateFilm");
 
+// FM-8: Update film
+app.MapPut("/api/films/{id}", (int id, Film updatedFilm) =>
+{
+    var film = films.FirstOrDefault(f => f.MaPhim == id);
+
+    if (film == null)
+    {
+        return Results.NotFound();
+    }
+
+    film.TenPhim = updatedFilm.TenPhim;
+    film.MoTa = updatedFilm.MoTa;
+    film.ThoiLuong = updatedFilm.ThoiLuong;
+    film.NamPhatHanh = updatedFilm.NamPhatHanh;
+    film.NgayKhoiChieu = updatedFilm.NgayKhoiChieu;
+    film.NgonNgu = updatedFilm.NgonNgu;
+    film.QuocGia = updatedFilm.QuocGia;
+    film.MaTheLoai = updatedFilm.MaTheLoai;
+    film.MaDaoDien = updatedFilm.MaDaoDien;
+
+    return Results.Ok(film);
+})
+.WithName("UpdateFilm");
+
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
