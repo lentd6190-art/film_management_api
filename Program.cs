@@ -73,6 +73,20 @@ app.MapGet("/api/films", () =>
 })
 .WithName("GetAllFilms");
 
+// FM-6: Get film by ID
+app.MapGet("/api/films/{id}", (int id) =>
+{
+    var film = films.FirstOrDefault(f => f.MaPhim == id);
+
+    if (film == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(film);
+})
+.WithName("GetFilmById");
+
 // FM-7: Create film
 app.MapPost("/api/films", (Film film) =>
 {
