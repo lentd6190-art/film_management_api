@@ -138,6 +138,7 @@ app.MapPut("/api/films/{id}", (int id, Film updatedFilm) =>
     film.QuocGia = updatedFilm.QuocGia;
     film.MaTheLoai = updatedFilm.MaTheLoai;
     film.MaDaoDien = updatedFilm.MaDaoDien;
+    film.PosterUrl = updatedFilm.PosterUrl;
 
     return Results.Ok(film);
 })
