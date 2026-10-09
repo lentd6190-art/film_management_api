@@ -7,14 +7,17 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options =>
 {
-options.AddPolicy("FrontendPolicy", policy =>
-{
-policy.WithOrigins("http://localhost:5173")
-.AllowAnyHeader()
-.AllowAnyMethod();
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy
+            .SetIsOriginAllowed(origin =>
+                Uri.TryCreate(origin, UriKind.Absolute, out var uri) &&
+                uri.Scheme == Uri.UriSchemeHttp &&
+                uri.Host == "localhost")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
 });
-});
-
 
 var app = builder.Build();
 
