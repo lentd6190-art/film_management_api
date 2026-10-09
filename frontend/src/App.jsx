@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 const films = [
@@ -206,8 +206,60 @@ function LoginPage({ onLogin }) {
   )
 }
 
+
 function FilmManagementHome() {
   const [search, setSearch] = useState('')
+  const [films, setFilms] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  
+  useEffect(() => {
+    console.log('FilmManagementHome mounted')
+
+    const fetchFilms = async () => {
+      try {
+        setLoading(true)
+        setError('')
+
+        const response = await fetch(
+          'http://localhost:5220/api/films',
+        )
+
+        if (!response.ok) {
+          throw new Error('Unable to load films from API.')
+        }
+
+        const data = await response.json()
+
+        const mappedFilms = data.map((film) => ({
+          id: film.maPhim,
+          title: film.tenPhim,
+          year: film.namPhatHanh,
+          duration: film.thoiLuong,
+          language: film.ngonNgu,
+          country: film.quocGia,
+          description: film.moTa,
+          genre: `Genre ${film.maTheLoai}`,
+          director: `Director ${film.maDaoDien}`,
+          poster:
+            film.maPhim === 1
+              ? 'https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&w=800&q=80'
+              : 'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?auto=format&fit=crop&w=800&q=80',
+        }))
+
+        setFilms(mappedFilms)
+      } catch (err) {
+        console.error('Fetch films error:', err)
+        setError(err.message || 'An unexpected error occurred.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchFilms()
+  }, [])
+
 
   const filteredFilms = films.filter((film) =>
     film.title.toLowerCase().includes(search.toLowerCase()),
@@ -275,8 +327,19 @@ function FilmManagementHome() {
           </div>
         </section>
 
-        <section className="film-grid">
-          {filteredFilms.map((film) => (
+        {loading ? (
+            <div className="empty-state">
+              <h3>Loading films...</h3>
+              <p>Please wait while we load your film collection.</p>
+            </div>
+          ) : error ? (
+            <div className="empty-state">
+              <h3>Unable to load films</h3>
+              <p>{error}</p>
+            </div>
+          ) : (
+            <section className="film-grid">
+    {filteredFilms.map((film) => (
             <article
               className="film-card"
               key={film.id}
@@ -334,6 +397,7 @@ function FilmManagementHome() {
             </article>
           ))}
         </section>
+      )}
 
         {filteredFilms.length === 0 && (
           <div className="empty-state">
