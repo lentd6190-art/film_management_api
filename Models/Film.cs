@@ -3,7 +3,7 @@ public class Film
 {
     public int MaPhim{get; set;}
     public string TenPhim {get; set;} = string.Empty;
-     public string? MoTa { get; set; }
+    public string? MoTa { get; set; }
 
     public int ThoiLuong { get; set; }
 
@@ -18,4 +18,6 @@ public class Film
     public int MaTheLoai { get; set; }
 
     public int MaDaoDien { get; set; }
+
+    public string? PosterUrl { get; set; }
 }
