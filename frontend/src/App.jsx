@@ -276,7 +276,7 @@ const handleEditFilm = (film) => {
 
         const data = await response.json()
 
-        const mappedFilms = data.map((film) => ({
+        const mappedFilms = (data.value ?? data).map((film) => ({
           id: film.maPhim,
           title: film.tenPhim,
           year: film.namPhatHanh,
