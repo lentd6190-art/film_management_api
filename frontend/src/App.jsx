@@ -436,8 +436,10 @@ if (editingFilmId !== null) {
   }
 }
 
+
 const filteredFilms = films.filter((film) =>
-  film.title.toLowerCase().includes(search.toLowerCase()),
+  film.title.toLowerCase().includes(search.trim().toLowerCase()) ||
+  String(film.id).includes(search.trim()),
 )
 
 return (
