@@ -212,8 +212,52 @@ function FilmManagementHome() {
   const [films, setFilms] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [editingFilmId, setEditingFilmId] = useState(null)
+  const [selectedFilm, setSelectedFilm] = useState(null)
 
-  
+const handleViewDetails = (film) => {
+  setSelectedFilm(film)
+}
+
+
+const handleEditFilm = (film) => {
+  setEditingFilmId(film.id)
+
+  setFormData({
+    tenPhim: film.title || '',
+    moTa: film.description || '',
+    thoiLuong: String(film.duration ?? ''),
+    namPhatHanh: String(film.year ?? ''),
+    ngayKhoiChieu: '',
+    ngonNgu: film.language || '',
+    quocGia: film.country || '',
+    maTheLoai: '',
+    maDaoDien: '',
+    posterUrl: film.poster || '',
+  })
+
+  setFormError('')
+  setShowAddForm(true)
+}
+  const [formData, setFormData] = useState({
+    tenPhim: '',
+    moTa: '',
+    thoiLuong: '',
+    namPhatHanh: '',
+    ngayKhoiChieu: '',
+    ngonNgu: '',
+    quocGia: '',
+    maTheLoai: '',
+    maDaoDien: '',
+    posterUrl: '',
+  })
+
+  const [formError, setFormError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+
+
   useEffect(() => {
     console.log('FilmManagementHome mounted')
 
@@ -242,10 +286,11 @@ function FilmManagementHome() {
           description: film.moTa,
           genre: `Genre ${film.maTheLoai}`,
           director: `Director ${film.maDaoDien}`,
-          poster:
+          poster: film.posterUrl || (
             film.maPhim === 1
               ? 'https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&w=800&q=80'
-              : 'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?auto=format&fit=crop&w=800&q=80',
+              : 'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?auto=format&fit=crop&w=800&q=80'
+          ),
         }))
 
         setFilms(mappedFilms)
@@ -260,86 +305,343 @@ function FilmManagementHome() {
     fetchFilms()
   }, [])
 
+const handleAddFilm = async (event) => {
+  event.preventDefault()
 
-  const filteredFilms = films.filter((film) =>
-    film.title.toLowerCase().includes(search.toLowerCase()),
+  setFormError('')
+if (
+  !formData.tenPhim.trim() ||
+  !formData.thoiLuong ||
+  !formData.namPhatHanh ||
+  !formData.ngonNgu.trim() ||
+  !formData.quocGia.trim() ||
+  (editingFilmId === null &&
+    (!formData.ngayKhoiChieu ||
+      !formData.maTheLoai ||
+      !formData.maDaoDien))
+) {
+  setFormError('Please fill in all required fields.')
+  return
+}
+
+  setIsSubmitting(true)
+
+  try {
+    const response = await fetch(
+  editingFilmId !== null
+    ? `http://localhost:5220/api/films/${editingFilmId}`
+    : 'http://localhost:5220/api/films',
+  {
+    method: editingFilmId !== null ? 'PUT' : 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        tenPhim: formData.tenPhim.trim(),
+        moTa: formData.moTa.trim() || null,
+        thoiLuong: Number(formData.thoiLuong),
+        namPhatHanh: Number(formData.namPhatHanh),
+        ngayKhoiChieu: formData.ngayKhoiChieu,
+        ngonNgu: formData.ngonNgu.trim(),
+        quocGia: formData.quocGia.trim(),
+        maTheLoai: Number(formData.maTheLoai),
+        maDaoDien: Number(formData.maDaoDien),
+        posterUrl: formData.posterUrl.trim() || null,
+      }),
+    })
+
+    
+if (!response.ok) {
+  throw new Error(
+    editingFilmId !== null
+      ? 'Failed to update film. Please try again.'
+      : 'Failed to add film. Please try again.'
   )
+}
 
-  return (
-    <div className="app">
-      <header className="header">
-        <div className="brand">
-          <div className="brand-icon">F</div>
+const savedFilm = await response.json()
 
-          <div>
-            <h1>FILM MANAGEMENT</h1>
-            <span>Movie Collection System</span>
-          </div>
+const mappedFilm = {
+  id: savedFilm.maPhim,
+  title: savedFilm.tenPhim,
+  year: savedFilm.namPhatHanh,
+  duration: savedFilm.thoiLuong,
+  language: savedFilm.ngonNgu,
+  country: savedFilm.quocGia,
+  description: savedFilm.moTa,
+  genre: `Genre ${savedFilm.maTheLoai}`,
+  director: `Director ${savedFilm.maDaoDien}`,
+  poster: savedFilm.posterUrl || formData.posterUrl.trim() || null,
+}
+
+if (editingFilmId !== null) {
+  setFilms((previousFilms) =>
+    previousFilms.map((film) =>
+      film.id === editingFilmId ? mappedFilm : film
+    )
+  )
+} else {
+  setFilms((previousFilms) => [...previousFilms, mappedFilm])
+}
+
+    setShowAddForm(false)
+    setFormData({
+      tenPhim: '',
+      moTa: '',
+      thoiLuong: '',
+      namPhatHanh: '',
+      ngayKhoiChieu: '',
+      ngonNgu: '',
+      quocGia: '',
+      maTheLoai: '',
+      maDaoDien: '',
+      posterUrl: '',
+    })
+  } catch (err) {
+    setFormError(err.message || 'An unexpected error occurred.')
+  } finally {
+    setIsSubmitting(false)
+  }
+}
+
+const filteredFilms = films.filter((film) =>
+  film.title.toLowerCase().includes(search.toLowerCase()),
+)
+
+return (
+  <div className="app">
+    <header className="header">
+      <div className="brand">
+        <div className="brand-icon">F</div>
+
+        <div>
+          <h1>FILM MANAGEMENT</h1>
+          <span>Movie Collection System</span>
+        </div>
+      </div>
+
+      <button
+        className="add-button"
+        onClick={() => setShowAddForm(true)}
+      >
+        <span>+</span>
+        Add Film
+      </button>
+    </header>
+
+    {showAddForm && (
+      <div className="modal-overlay">
+        <section className="film-form-modal">
+          <h2>{editingFilmId !== null ? 'Edit Film' : 'Add New Film'}</h2>
+
+          <form onSubmit={handleAddFilm}>
+            <div className="form-group">
+              <label>Film title *</label>
+              <input
+                type="text"
+                value={formData.tenPhim}
+                onChange={(event) =>
+                  setFormData({ ...formData, tenPhim: event.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Description</label>
+              <textarea
+                value={formData.moTa}
+                onChange={(event) =>
+                  setFormData({ ...formData, moTa: event.target.value })
+                }
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Duration (minutes) *</label>
+              <input
+                type="number"
+                min="1"
+                value={formData.thoiLuong}
+                onChange={(event) =>
+                  setFormData({ ...formData, thoiLuong: event.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Release year *</label>
+              <input
+                type="number"
+                min="1888"
+                value={formData.namPhatHanh}
+                onChange={(event) =>
+                  setFormData({ ...formData, namPhatHanh: event.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Release date *</label>
+              <input
+                type="date"
+                value={formData.ngayKhoiChieu}
+                onChange={(event) =>
+                  setFormData({ ...formData, ngayKhoiChieu: event.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Language *</label>
+              <input
+                type="text"
+                value={formData.ngonNgu}
+                onChange={(event) =>
+                  setFormData({ ...formData, ngonNgu: event.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Country *</label>
+              <input
+                type="text"
+                value={formData.quocGia}
+                onChange={(event) =>
+                  setFormData({ ...formData, quocGia: event.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Genre ID *</label>
+              <input
+                type="number"
+                min="1"
+                value={formData.maTheLoai}
+                onChange={(event) =>
+                  setFormData({ ...formData, maTheLoai: event.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Director ID *</label>
+              <input
+                type="number"
+                min="1"
+                value={formData.maDaoDien}
+                onChange={(event) =>
+                  setFormData({ ...formData, maDaoDien: event.target.value })
+                }
+                required
+              />
+            </div>
+          
+            <div className="form-group">
+              <label>Poster URL</label>
+              <input
+                type="url"
+                placeholder="https://example.com/poster.jpg"
+                value={formData.posterUrl}
+                onChange={(event) =>
+                  setFormData({
+                    ...formData,
+                    posterUrl: event.target.value,
+                  })
+                }
+              />
+            </div>
+            {formError && (
+              <p className="login-error">{formError}</p>
+            )}
+
+            <div className="form-actions">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddForm(false)
+                  setEditingFilmId(null)
+                  setFormError('')
+                }}
+              >
+                Cancel
+              </button>
+
+              <button type="submit" disabled={isSubmitting}>
+                {editingFilmId !== null ? 'Update Film' : 'Save Film'}
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+    )}
+
+
+    <main>
+      <section className="hero-section">
+        <div className="hero-content">
+          <span className="eyebrow">FILM LIBRARY</span>
+
+          <h2>
+            Manage your
+            <br />
+            <span>film collection.</span>
+          </h2>
+
+          <p>
+            Explore, manage and organise your favourite movies
+            in one place.
+          </p>
         </div>
 
-        <button className="add-button">
-          <span>+</span>
-          Add Film
-        </button>
-      </header>
+        <div className="film-count">
+          <strong>{films.length}</strong>
+          <span>Films</span>
+        </div>
+      </section>
 
-      <main>
-        <section className="hero-section">
-          <div className="hero-content">
-            <span className="eyebrow">FILM LIBRARY</span>
+      <section className="toolbar">
+        <div className="search-box">
+          <span className="search-icon">⌕</span>
 
-            <h2>
-              Manage your
-              <br />
-              <span>film collection.</span>
-            </h2>
+          <input
+            type="text"
+            placeholder="Search films..."
+            value={search}
+            onChange={(event) =>
+              setSearch(event.target.value)
+            }
+          />
+        </div>
 
-            <p>
-              Explore, manage and organise your favourite movies
-              in one place.
-            </p>
-          </div>
+        <div className="filter-label">
+          <span>Showing</span>
+          <strong>{filteredFilms.length}</strong>
+          <span>films</span>
+        </div>
+      </section>
 
-          <div className="film-count">
-            <strong>{films.length}</strong>
-            <span>Films</span>
-          </div>
-        </section>
-
-        <section className="toolbar">
-          <div className="search-box">
-            <span className="search-icon">⌕</span>
-
-            <input
-              type="text"
-              placeholder="Search films..."
-              value={search}
-              onChange={(event) =>
-                setSearch(event.target.value)
-              }
-            />
-          </div>
-
-          <div className="filter-label">
-            <span>Showing</span>
-            <strong>{filteredFilms.length}</strong>
-            <span>films</span>
-          </div>
-        </section>
-
-        {loading ? (
-            <div className="empty-state">
-              <h3>Loading films...</h3>
-              <p>Please wait while we load your film collection.</p>
-            </div>
-          ) : error ? (
-            <div className="empty-state">
-              <h3>Unable to load films</h3>
-              <p>{error}</p>
-            </div>
-          ) : (
-            <section className="film-grid">
-    {filteredFilms.map((film) => (
+      {loading ? (
+        <div className="empty-state">
+          <h3>Loading films...</h3>
+          <p>Please wait while we load your film collection.</p>
+        </div>
+      ) : error ? (
+        <div className="empty-state">
+          <h3>Unable to load films</h3>
+          <p>{error}</p>
+        </div>
+      ) : (
+        <section className="film-grid">
+          {filteredFilms.map((film) => (
             <article
               className="film-card"
               key={film.id}
@@ -351,9 +653,20 @@ function FilmManagementHome() {
                   className="film-poster"
                 />
 
+                
                 <div className="poster-overlay">
-                  <button className="view-button">
+                  <button
+                    className="view-button"
+                    onClick={() => handleViewDetails(film)}
+                  >
                     View Details
+                  </button>
+
+                  <button
+                    className="view-button"
+                    onClick={() => handleEditFilm(film)}
+                  >
+                    Edit Film
                   </button>
                 </div>
 
@@ -393,29 +706,60 @@ function FilmManagementHome() {
                   <span>DIRECTOR</span>
                   <strong>{film.director}</strong>
                 </div>
+
               </div>
             </article>
           ))}
         </section>
       )}
 
-        {filteredFilms.length === 0 && (
-          <div className="empty-state">
-            <div>🎬</div>
-            <h3>No films found</h3>
-            <p>
-              Try searching with another film title.
-            </p>
-          </div>
-        )}
-      </main>
+      
+      {selectedFilm && (
+        <div className="film-detail-overlay">
+          <div className="film-detail-modal">
+            <button
+              className="close-button"
+              onClick={() => setSelectedFilm(null)}
+            >
+              ✕
+            </button>
 
-      <footer>
-        <span>FILM MANAGEMENT API</span>
-        <span>OpenAPI • Swagger • React</span>
-      </footer>
-    </div>
-  )
+            <h2>{selectedFilm.title}</h2>
+
+            <img
+              src={selectedFilm.poster}
+              alt={selectedFilm.title}
+              className="film-detail-poster"
+            />
+
+            <p><strong>Year:</strong> {selectedFilm.year}</p>
+            <p><strong>Duration:</strong> {selectedFilm.duration} min</p>
+            <p><strong>Country:</strong> {selectedFilm.country}</p>
+            <p><strong>Language:</strong> {selectedFilm.language}</p>
+            <p><strong>Genre:</strong> {selectedFilm.genre}</p>
+            <p><strong>Director:</strong> {selectedFilm.director}</p>
+            <p><strong>Description:</strong> {selectedFilm.description || 'No description available.'}</p>
+          </div>
+        </div>
+      )}
+
+      {filteredFilms.length === 0 && (
+        <div className="empty-state">
+          <div>🎬</div>
+          <h3>No films found</h3>
+          <p>
+            Try searching with another film title.
+          </p>
+        </div>
+      )}
+    </main>
+
+    <footer>
+      <span>FILM MANAGEMENT API</span>
+      <span>OpenAPI • Swagger • React</span>
+    </footer>
+  </div>
+)
 }
 
 function App() {
