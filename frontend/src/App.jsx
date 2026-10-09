@@ -240,6 +240,38 @@ const handleEditFilm = (film) => {
   setFormError('')
   setShowAddForm(true)
 }
+
+const handleDeleteFilm = async (film) => {
+  const confirmed = window.confirm(
+    `Are you sure you want to delete "${film.title}"?`
+  )
+
+  if (!confirmed) return
+
+  try {
+    const response = await fetch(
+      `http://localhost:5220/api/films/${film.id}`,
+      {
+        method: 'DELETE',
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error('Failed to delete film. Please try again.')
+    }
+
+    setFilms((previousFilms) =>
+      previousFilms.filter((item) => item.id !== film.id)
+    )
+
+    if (selectedFilm?.id === film.id) {
+      setSelectedFilm(null)
+    }
+  } catch (err) {
+    window.alert(err.message || 'An unexpected error occurred.')
+  }
+}
+
   const [formData, setFormData] = useState({
     tenPhim: '',
     moTa: '',
@@ -668,6 +700,14 @@ return (
                   >
                     Edit Film
                   </button>
+
+                  <button
+                    className="view-button"
+                    onClick={() => handleDeleteFilm(film)}
+                  >
+                    Delete Film
+                  </button>
+            
                 </div>
 
                 <span className="genre-badge">
